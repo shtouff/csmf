@@ -17,11 +17,11 @@ my $oidMACs  = ".1.3.6.1.2.1.17.4.3.1.2";
 my $cache = {};
 my $run   = {
 	"community" => "priv",
-	"hosts"     => [ "2960g-1", "2960g-3", "2960g-2" ],
+	"hosts"     => [ "1.1.1.1", "2.2.2.2" ],
 	"filter"    => ""
 };
 
-my ( $opt_filter, $opt_hosts, $opt_verbose, $opt_community );
+my ( $opt_filter, $opt_hosts, $opt_verbose, $opt_help, $opt_community );
 
 sub isSubOid {
 	my $rootOid  = shift;
@@ -190,20 +190,51 @@ sub get_port_name_for_a_bridge {
 	return $pname;
 }
 
+sub print_help() {
+	print <<EOF
+$0 [--filter|-f <filter>] [--hosts|-H <hosts>] [--verbose|-v] 
+  [--help|-h] [--community|-c]
+
+
+  --hosts|-H            Comma separated of hosts to search on.
+                        [default: 1.1.1.1,2.2.2.2]
+
+  --filter|-f           MAC address filter using lowercase regexp 
+                        [default: none]
+
+  --community|-c        SNMP community to use.
+                        [default: priv]
+
+  --verbose|-v          Increase verbosity.
+
+  --help|-h             Display this help.
+
+EOF
+	  ;
+}
+
 if (
-	!GetOptions(
+       !GetOptions(
 		"filter=s"    => \$opt_filter,
 		'f=s'         => \$opt_filter,
 		"hosts=s"     => \$opt_hosts,
-		'h=s'         => \$opt_hosts,
+		'H=s'         => \$opt_hosts,
 		"verbose"     => \$opt_verbose,
 		"v"           => \$opt_verbose,
+		"help"        => \$opt_help,
+		"h"           => \$opt_help,
 		"community=s" => \$opt_community,
 		"c=s"         => \$opt_community
 	)
   )
 {
-	die "getopt failed";
+	print_help();
+	exit (-1)
+}
+
+if (defined $opt_help) {
+	print_help();
+	exit (-1);
 }
 
 $run->{community} = $opt_community if defined $opt_community;
